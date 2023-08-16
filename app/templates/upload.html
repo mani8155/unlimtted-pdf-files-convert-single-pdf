@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Merger</title>
+    <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 400px;
+            padding: 100px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #336699;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            margin-bottom: 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+         input[type="text"] {
+            margin-bottom: 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+
+
+     .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: #f3f3f3;
+            margin-top: 10px;
+        }
+    </style>
+      <script>
+        function showLoader() {
+            document.getElementById("loader-overlay").style.display = "flex";
+        }
+
+        function hideLoader() {
+            document.getElementById("loader-overlay").style.display = "none";
+        }
+
+        function clearFileInput() {
+            var input = document.getElementById("pdf_files");
+            input.value = ""; // Clear the file selection
+        }
+
+<!--        function handleFormSubmit() {-->
+<!--            showLoader();-->
+
+<!--            // Create a FormData object to handle file uploads-->
+<!--            var formData = new FormData(document.getElementById("merge-form"));-->
+
+<!--            // Send a POST request to the merge PDFs endpoint-->
+<!--            fetch("{% url 'merge_pdfs' %}", {-->
+<!--                method: "POST",-->
+<!--                body: formData,-->
+<!--                headers: {-->
+<!--                    "X-CSRFToken": "{{ csrf_token }}",-->
+<!--                },-->
+<!--            })-->
+<!--            .then(response => response.blob())  // Parse the response as a Blob-->
+<!--            .then(blob => {-->
+<!--                hideLoader();-->
+<!--                // Create a blob URL for the merged PDF-->
+<!--                var blobUrl = URL.createObjectURL(blob);-->
+
+<!--                // Create a temporary anchor element to trigger the download-->
+<!--                var a = document.createElement("a");-->
+<!--                a.href = blobUrl;-->
+<!--                a.download = "nanox.pdf";-->
+<!--                a.style.display = "none";-->
+<!--                document.body.appendChild(a);-->
+
+<!--                // Trigger the download and remove the anchor element-->
+<!--                a.click();-->
+<!--                document.body.removeChild(a);-->
+
+<!--                // Clear the file input-->
+<!--                clearFileInput();-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                hideLoader();-->
+<!--                console.error("An error occurred during PDF merge:", error);-->
+<!--            });-->
+<!--        }-->
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Merger</h1>
+         <form id="merge-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="pdf_files">Select PDF files to merge:</label>
+            <input type="file" name="pdf_files" id="pdf_files" accept=".pdf" multiple>
+
+<!--             <label for="merged_pdf_name">Merged PDF Name:</label>-->
+            <input type="text" name="merged_pdf_name" id="merged_pdf_name" placeholder="Enter the merged PDF name">
+
+            <input type="submit" value="Merge PDFs">
+        </form>
+
+        <!-- Loader overlay -->
+        <div id="loader-overlay" class="loader-overlay">
+            <div class="loader"></div>
+            <p class="loader-text">Merging PDFs...</p>
+        </div>
+
+        {% if merge_time %}
+        <div>
+            <h2>Merge Information</h2>
+            <p>Number of files successfully merged: {{ merged_count }}</p>
+            <p>Total PDF page count: {{ total_page_count }}</p>
+            <p>Merge time: {{ merge_time }} seconds</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
